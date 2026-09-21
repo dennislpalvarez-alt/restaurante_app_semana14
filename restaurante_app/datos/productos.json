@@ -1,0 +1,16 @@
+[
+    {
+        "codigo": "P001",
+        "nombre": "Hamburguesa clasica",
+        "categoria": "Platos fuertes",
+        "precio": 5.5,
+        "stock": 20
+    },
+    {
+        "codigo": "P002",
+        "nombre": "Limonada",
+        "categoria": "Bebidas",
+        "precio": 1.5,
+        "stock": 40
+    }
+]
