@@ -1,4 +1,4 @@
-# 🍽️ Restaurante App — Semana 14
+# Restaurante App — Semana 14
 
 ## Propósito
 Segunda iteración del proyecto **restaurante_app** con una **interfaz gráfica mejorada** construida con **Tkinter**.
@@ -24,23 +24,24 @@ el **CRUD de Productos** directamente desde la interfaz gráfica.
 
 ## Estructura del proyecto
 
+```
 restaurante_app_semana14/
 ├── restaurante_app/
-│ ├── datos/
-│ │ ├── productos.json
-│ │ └── usuarios.json
-│ ├── modelos/
-│ │ ├── producto.py
-│ │ └── usuario.py
-│ ├── servicios/
-│ │ ├── archivo_servicio.py
-│ │ └── restaurante_servicio.py
-│ ├── ui/
-│ │ ├── login_view.py
-│ │ └── main_view.py
-│ └── main.py
+│   ├── datos/
+│   │   ├── productos.json
+│   │   └── usuarios.json
+│   ├── modelos/
+│   │   ├── producto.py
+│   │   └── usuario.py
+│   ├── servicios/
+│   │   ├── archivo_servicio.py
+│   │   └── restaurante_servicio.py
+│   ├── ui/
+│   │   ├── login_view.py
+│   │   └── main_view.py
+│   └── main.py
 └── README.md
-
+```
 
 ## Responsabilidades
 - **modelos/**: representan las entidades del dominio (Producto, Usuario).
@@ -51,38 +52,41 @@ restaurante_app_semana14/
 
 ## Flujo de la aplicación
 
+```
 Inicio de la aplicacion
-|
+        |
 main.py prepara Tkinter y los servicios
-|
-LoginView
-|
+        |
+   LoginView
+        |
 RestauranteServicio valida el acceso
-|
-MainView (menu lateral)
-|
+        |
+    MainView (menu lateral)
+        |
 Inicio | Usuarios (consulta) | Productos (CRUD)
-|
+        |
 Registrar / Cargar / Actualizar / Eliminar producto
-|
+        |
 RestauranteServicio procesa y guarda en productos.json
-|
-Cerrar sesion
-|
-LoginView
+        |
+   Cerrar sesion
+        |
+   LoginView
+```
 
 ## Cómo ejecutar
 
 1. Ubicarse dentro de la carpeta `restaurante_app`:
- cd restaurante_app
-
+   ```
+   cd restaurante_app
+   ```
 2. Ejecutar el punto de entrada:
- python main.py
-
+   ```
+   python main.py
+   ```
 3. Iniciar sesión con el usuario de prueba cargado en `datos/usuarios.json`:
- - Usuario: `jperez`
- - Contraseña: `1234`
-
+   - Usuario: `jperez`
+   - Contraseña: `1234`
 4. Navegar por el menú lateral y probar el CRUD de productos.
 
 ## Requisitos técnicos
@@ -96,4 +100,3 @@ Estructura y flujo adaptados de los proyectos docentes *Biblioteca App* (Semana 
 
 ## Autor
 Dennis Leonardo Pacheco Álvarez — Proyecto académico de Programación Orientada a Objetos.
-
