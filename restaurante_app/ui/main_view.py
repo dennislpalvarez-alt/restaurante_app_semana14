@@ -27,6 +27,13 @@ class MainView(tk.Frame):
         self.tabla_productos = None
         self.tabla_usuarios = None
 
+        # Semana 15: Variables para la sección de Ventas
+        self.usuario_venta_combo = None
+        self.producto_venta_combo = None
+        self.tabla_ventas = None
+        self.opciones_usuarios_venta = {}
+        self.opciones_productos_venta = {}
+
         self.definir_estilos()
         self.construir_interfaz()
 
@@ -93,6 +100,7 @@ class MainView(tk.Frame):
         self.crear_boton_menu(frame_sidebar, "Inicio", self.mostrar_inicio)
         self.crear_boton_menu(frame_sidebar, "Usuarios", self.mostrar_usuarios)
         self.crear_boton_menu(frame_sidebar, "Productos", self.mostrar_productos)
+        self.crear_boton_menu(frame_sidebar, "Ventas", self.mostrar_ventas)  # Semana 15
 
         tk.Frame(frame_sidebar, bg=self.color_encabezado).pack(fill="both", expand=True)
 
@@ -134,6 +142,7 @@ class MainView(tk.Frame):
             text=(
                 f"Productos: {self.restaurante_servicio.cantidad_productos()} | "
                 f"Usuarios: {self.restaurante_servicio.cantidad_usuarios()} | "
+                f"Ventas: {self.restaurante_servicio.cantidad_ventas()} | "
                 "Datos JSON locales"
             )
         )
@@ -295,6 +304,130 @@ class MainView(tk.Frame):
             self.tabla_productos.insert(
                 "", tk.END,
                 values=(producto.codigo, producto.nombre, producto.categoria, producto.precio, producto.stock),
+            )
+        self.actualizar_barra_estado()
+
+    # ---------------- VENTAS (Semana 15) ----------------
+
+    def mostrar_ventas(self):
+        """Muestra la sección de Ventas con selectores y tabla."""
+        self.marcar_seccion("Ventas")
+        self.limpiar_contenido()
+
+        self.crear_titulo_seccion("Registro de Ventas")
+
+        cuerpo = tk.Frame(self.contenido, bg=self.color_fondo)
+        cuerpo.pack(fill="both", expand=True)
+        cuerpo.grid_columnconfigure(1, weight=1)
+        cuerpo.grid_rowconfigure(0, weight=1)
+
+        # Formulario de registro
+        formulario = tk.LabelFrame(
+            cuerpo, text="Nueva Venta", bg=self.color_panel, fg=self.color_encabezado,
+            font=("Arial", 10, "bold"), padx=14, pady=14,
+        )
+        formulario.grid(row=0, column=0, sticky="n", padx=(0, 18))
+
+        # Selectores (Combobox)
+        self.usuario_venta_combo = self.crear_selector_venta(
+            formulario, "Usuario", 0, self.obtener_opciones_usuarios_venta()
+        )
+        self.producto_venta_combo = self.crear_selector_venta(
+            formulario, "Producto", 1, self.obtener_opciones_productos_venta()
+        )
+
+        # Botón de acción - command= sin paréntesis (Semana 15)
+        acciones = tk.Frame(formulario, bg=self.color_panel)
+        acciones.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(12, 0))
+
+        self.crear_boton(
+            acciones, "Registrar venta", self.registrar_venta, "Accion.TButton"
+        ).pack(fill="x")
+
+        # Tabla de ventas
+        listado = self.crear_listado(cuerpo, "Ventas registradas", usar_grid=True)
+        self.tabla_ventas = self.crear_tabla(
+            listado,
+            ("identificador", "usuario", "producto", "fecha"),
+            ("ID Venta", "Usuario", "Producto", "Fecha"),
+        )
+        self.refrescar_ventas()
+
+    def crear_selector_venta(self, contenedor, etiqueta, fila, opciones):
+        """Crea un Combobox de solo lectura para seleccionar usuario o producto."""
+        tk.Label(
+            contenedor, text=etiqueta, bg=self.color_panel, fg=self.color_texto,
+            font=("Arial", 10, "bold"),
+        ).grid(row=fila, column=0, sticky="w", pady=(0, 8), padx=(0, 10))
+
+        selector = ttk.Combobox(
+            contenedor, values=list(opciones.keys()), state="readonly", width=34
+        )
+        selector.grid(row=fila, column=1, sticky="ew", pady=(0, 8))
+        return selector
+
+    def obtener_opciones_usuarios_venta(self):
+        """Genera el diccionario de opciones para el Combobox de Usuarios."""
+        self.opciones_usuarios_venta = {
+            f"{u.identificacion} - {u.nombre}": u.identificacion
+            for u in self.restaurante_servicio.listar_usuarios()
+        }
+        return self.opciones_usuarios_venta
+
+    def obtener_opciones_productos_venta(self):
+        """Genera el diccionario de opciones para el Combobox de Productos."""
+        self.opciones_productos_venta = {
+            f"{p.codigo} - {p.nombre}": p.codigo
+            for p in self.restaurante_servicio.listar_productos()
+        }
+        return self.opciones_productos_venta
+
+    def registrar_venta(self):
+        """
+        Callback del botón: obtiene datos, llama al servicio y actualiza UI.
+        Flujo: Evento → Callback → Servicio → Persistencia → Respuesta visual
+        """
+        # 1. Obtener selección de los Combobox
+        usuario_seleccionado = self.usuario_venta_combo.get()
+        producto_seleccionado = self.producto_venta_combo.get()
+
+        # 2. Traducir texto visible a ID real
+        usuario_id = self.opciones_usuarios_venta.get(usuario_seleccionado, "")
+        producto_codigo = self.opciones_productos_venta.get(producto_seleccionado, "")
+
+        # 3. Delegar al servicio
+        try:
+            self.restaurante_servicio.registrar_venta(usuario_id, producto_codigo)
+            self.limpiar_formulario_venta()
+            self.refrescar_ventas()
+            messagebox.showinfo("Ventas", "Venta registrada correctamente.")
+        except ValueError as error:
+            messagebox.showerror("Ventas", str(error))
+
+    def limpiar_formulario_venta(self):
+        """Limpia los selectores después de registrar."""
+        if self.usuario_venta_combo:
+            self.usuario_venta_combo.set("")
+        if self.producto_venta_combo:
+            self.producto_venta_combo.set("")
+
+    def refrescar_ventas(self):
+        """Actualiza la tabla Treeview con las ventas actuales."""
+        if not self.tabla_ventas:
+            return
+
+        self.limpiar_tabla(self.tabla_ventas)
+        for venta in self.restaurante_servicio.listar_ventas():
+            # Buscar nombres para mostrar en la tabla
+            usuario = self.restaurante_servicio.buscar_usuario(venta.usuario_id)
+            producto = self.restaurante_servicio.buscar_producto(venta.producto_codigo)
+
+            texto_usuario = f"{usuario.identificacion} - {usuario.nombre}" if usuario else venta.usuario_id
+            texto_producto = f"{producto.codigo} - {producto.nombre}" if producto else venta.producto_codigo
+
+            self.tabla_ventas.insert(
+                "", tk.END,
+                values=(venta.identificador, texto_usuario, texto_producto, venta.fecha),
             )
         self.actualizar_barra_estado()
 

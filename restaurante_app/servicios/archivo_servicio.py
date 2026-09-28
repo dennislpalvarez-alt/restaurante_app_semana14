@@ -4,7 +4,7 @@ import os
 
 class ArchivoServicio:
     """
-    Lee y escribe los archivos locales de productos y usuarios.
+    Lee y escribe los archivos locales de productos, usuarios y ventas.
     No conoce reglas de negocio del restaurante.
     """
 
@@ -12,9 +12,11 @@ class ArchivoServicio:
         self,
         ruta_productos: str = "datos/productos.json",
         ruta_usuarios: str = "datos/usuarios.json",
+        ruta_ventas: str = "datos/ventas.json",
     ) -> None:
         self.ruta_productos: str = ruta_productos
         self.ruta_usuarios: str = ruta_usuarios
+        self.ruta_ventas: str = ruta_ventas
 
     def _leer_json(self, ruta_archivo: str) -> list[dict]:
         try:
@@ -39,11 +41,25 @@ class ArchivoServicio:
             print(f"Error: no hay permisos para escribir '{ruta_archivo}'.")
             return False
 
+    # ---------------- PRODUCTOS ----------------
+
     def leer_productos(self) -> list[dict]:
         return self._leer_json(self.ruta_productos)
+
+    def guardar_productos(self, productos: list[dict]) -> bool:
+        return self._guardar_json(self.ruta_productos, productos)
+
+    # ---------------- USUARIOS ----------------
 
     def leer_usuarios(self) -> list[dict]:
         return self._leer_json(self.ruta_usuarios)
 
-    def guardar_productos(self, productos: list[dict]) -> bool:
-        return self._guardar_json(self.ruta_productos, productos)
+    # ---------------- VENTAS (Semana 15) ----------------
+
+    def leer_ventas(self) -> list[dict]:
+        """Lee el archivo de ventas y devuelve la lista de diccionarios."""
+        return self._leer_json(self.ruta_ventas)
+
+    def guardar_ventas(self, ventas: list[dict]) -> bool:
+        """Guarda la lista de ventas en el archivo JSON."""
+        return self._guardar_json(self.ruta_ventas, ventas)
